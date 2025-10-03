@@ -5,6 +5,7 @@ import { isString } from "../../typeUtils";
 import { Gender, Patient } from "../../types";
 import { Box, SvgIcon, Typography } from "@mui/material";
 import { Male, Female, Transgender } from '@mui/icons-material';
+import Entries from "./Entries";
 
 type GenderProps = {
     gender: Gender
@@ -64,6 +65,7 @@ const PatientPage = () => {
             </Box>
             <Typography variant="body1">SSN: {patient.ssn}</Typography>
             <Typography variant="body1">Occupation: {patient.name}</Typography>
+            <Entries entries={patient.entries}/>
         </Box>
     );
 };

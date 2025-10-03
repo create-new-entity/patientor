@@ -1,3 +1,46 @@
+
+export enum EntryTypes {
+  Hostpital = 'Hospital',
+  OccupationalHealthcare = 'OccupationalHealthcare',
+  HealthCheck = 'HealthCheck'
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface BaseEntry {
+  id: string,
+  date: string,
+  type: EntryTypes,
+  specialist: string,
+  description: string,
+  diagnosisCodes? : string[],
+}
+
+type Leave = {
+  startDate: string,
+  endDate: string
+};
+
+
+interface OccupationalHealthcareEntry extends BaseEntry {
+  employerName: string,
+  sickLeave?: Leave
+}
+
+type Discharge = {
+  date: string,
+  criteria: string
+};
+
+interface HospitalEntry extends BaseEntry {
+  discharge: Discharge
+}
+
+interface HealthCheckEntry extends BaseEntry {
+  healthCheckRating: number
+}
+
+export type Entry = OccupationalHealthcareEntry | HospitalEntry | HealthCheckEntry;
+
 export interface Diagnosis {
   code: string;
   name: string;
@@ -17,6 +60,7 @@ export interface Patient {
   gender: Gender;
   ssn?: string;
   dateOfBirth?: string;
+  entries: Entry[]
 }
 
 export type PatientFormValues = Omit<Patient, "id" | "entries">;
