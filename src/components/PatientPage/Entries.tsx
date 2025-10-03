@@ -1,13 +1,16 @@
 import { Box, Typography } from "@mui/material";
-import { Entry } from "../../types";
+import { Diagnosis, Entry } from "../../types";
+import { useEffect, useState } from "react";
+import diagnosesServices from "../../services/diagnoses";
 
 
 type EntryProps = {
-    entry: Entry
+    entry: Entry,
+    diagnoses: Diagnosis[]
 };
 
 const PatientEntry = (props: EntryProps) => {
-    const { entry } = props;
+    const { entry, diagnoses } = props;
 
     return (
         <Box>
@@ -19,7 +22,7 @@ const PatientEntry = (props: EntryProps) => {
                     entry.diagnosisCodes && entry.diagnosisCodes.map((diagnosisCode, index) => {
                         return (
                             <li key={`${entry.id} ${diagnosisCode}`}>
-                                {diagnosisCode}
+                                {diagnosisCode} { diagnoses?.find((d) => d.code === diagnosisCode)?.name }
                             </li>
                         );
                     })
@@ -35,6 +38,14 @@ type EntriesProps = {
 
 const Entries = (props: EntriesProps) => {
     const { entries } = props;
+    const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            const allDiagnoses = await diagnosesServices.getAllDiagnoses();
+            setDiagnoses(allDiagnoses);
+        })();
+    }, []);
 
     if(!entries.length) {
         return null;
@@ -45,7 +56,11 @@ const Entries = (props: EntriesProps) => {
             {
                 entries.map((entry) => {
                     return (
-                        <PatientEntry key={entry.id} entry={entry}/>
+                        <PatientEntry
+                            key={entry.id}
+                            entry={entry}
+                            diagnoses={diagnoses}
+                        />
                     );
                 })
             }
