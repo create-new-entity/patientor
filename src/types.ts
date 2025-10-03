@@ -9,7 +9,6 @@ export enum EntryTypes {
 export interface BaseEntry {
   id: string,
   date: string,
-  type: EntryTypes,
   specialist: string,
   description: string,
   diagnosisCodes? : string[],
@@ -21,7 +20,8 @@ type Leave = {
 };
 
 
-interface OccupationalHealthcareEntry extends BaseEntry {
+export interface OccupationalHealthcareEntry extends BaseEntry {
+  type: EntryTypes.OccupationalHealthcare,
   employerName: string,
   sickLeave?: Leave
 }
@@ -31,11 +31,13 @@ type Discharge = {
   criteria: string
 };
 
-interface HospitalEntry extends BaseEntry {
+export interface HospitalEntry extends BaseEntry {
+  type: EntryTypes.Hostpital,
   discharge: Discharge
 }
 
-interface HealthCheckEntry extends BaseEntry {
+export interface HealthCheckEntry extends BaseEntry {
+  type: EntryTypes.HealthCheck,
   healthCheckRating: number
 }
 
