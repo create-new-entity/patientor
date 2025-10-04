@@ -1,9 +1,10 @@
 
 
-import { useState, SyntheticEvent } from "react";
-import {  TextField, Grid, Button, SelectChangeEvent, Select, MenuItem } from '@mui/material';
+import { useState, SyntheticEvent, useEffect } from "react";
+import {  TextField, Grid, Button, SelectChangeEvent, Select, MenuItem, Box, Typography } from '@mui/material';
 import { EntryWithoutId, EntryTypes } from "../../../types";
-
+import DiagnosesCodesSelector from "./DiagnosesCodesSelector";
+import HealthRating from "./HealthRating";
 
 interface Props {
   onCancel: () => void;
@@ -14,25 +15,30 @@ const AddPatientEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
 
-  const [selectedEntryType, setSelectedEntryType] = useState<EntryTypes>(EntryTypes.HealthCheck);
+  const [selectedEntryType, setSelectedEntryType] = useState<EntryTypes>(EntryTypes.Hospital);
 
-  
   const [description, setDescription] = useState('');
-  const [diagnosisCodes, setDiagnosisCodes] = useState('');
-
+  const [diagnosisCodes, setSelectedDiagnosesCodes] = useState<string[]>([]);
 
   // OccupationalHealthcareEntry
-  // const [employerName, setEmployerName] = useState('');
-  // const [sickLeave, setSickLeave] = useState('');
+  const [employerName, setEmployerName] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  // HospitalEntry
-  // const [dischargeDate, setDischargeDate] = useState('');
-  // const [dischargeCriteria, setDischargeCriteria] = useState('');
+  // Hospital
+  const [dischargeDate, setDischargeDate] = useState('');
+  const [dischargeCriteria, setDischargeCriteria] = useState('');
 
-  // HealthCheckEntry
-  const [healthCheckRating, setHealthCheckRating] = useState('');
+  // HealthCheck
+  const [healthCheckRating, setHealthCheckRating] = useState(0);
 
-
+  useEffect(() => {
+    const date = new Date();
+    setStartDate(date.toISOString().split('T')[0]);
+    setDischargeDate(date.toISOString().split('T')[0]);
+    date.setDate(date.getDate() + 1);
+    setEndDate(date.toISOString().split('T')[0]);
+  }, []);
 
   const onEntryTypeChange = (event: SelectChangeEvent<EntryTypes>) => {
     event.preventDefault();
@@ -53,8 +59,34 @@ const AddPatientEntryForm = ({ onCancel, onSubmit }: Props) => {
         date,
         specialist,
         description,
-        diagnosisCodes: diagnosisCodes.split(','),
+        diagnosisCodes,
         healthCheckRating: parseInt(healthCheckRating, 10)
+      });
+    }
+    else if(selectedEntryType === EntryTypes.OccupationalHealthcare) {
+      onSubmit({
+        type: selectedEntryType,
+        date,
+        specialist,
+        description,
+        diagnosisCodes,
+        employerName,
+        sickLeave: {
+          startDate, endDate
+        }
+      });
+    }
+    else if(selectedEntryType === EntryTypes.Hospital) {
+      onSubmit({
+        type: selectedEntryType,
+        date,
+        specialist,
+        description,
+        diagnosisCodes,
+        discharge: {
+          date: dischargeDate,
+          criteria: dischargeCriteria
+        }
       });
     }
   };
@@ -95,18 +127,80 @@ const AddPatientEntryForm = ({ onCancel, onSubmit }: Props) => {
           value={description}
           onChange={({ target }) => setDescription(target.value)}
         />
-        <TextField
-          label="Diagnosis Codes"
-          fullWidth
-          value={diagnosisCodes}
-          onChange={({ target }) => setDiagnosisCodes(target.value)}
-        />
-        <TextField
-          label="Health Check Rating"
-          fullWidth
-          value={healthCheckRating}
-          onChange={({ target }) => setHealthCheckRating(target.value)}
-        />
+        <DiagnosesCodesSelector setSelectedDiagnosesCodes={setSelectedDiagnosesCodes}/>
+        {
+          selectedEntryType === EntryTypes.HealthCheck &&
+          <HealthRating setHealthCheckRating={setHealthCheckRating}/>
+        }
+
+        {
+          selectedEntryType === EntryTypes.OccupationalHealthcare &&
+          <>
+            <TextField
+              label="Employer Name"
+              fullWidth
+              value={employerName}
+              onChange={({ target }) => setEmployerName(target.value)}
+            />
+            <Box sx={{ padding: '5px', border: '1px solid', borderRadius: '5px', marginTop: '3px', marginBottom: '3px' }}>
+              <Typography variant="body1">Sick Leave</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '20px', padding: '10px' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '3px' }}>
+                  <label htmlFor="startDate">Start date:</label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    name="sick-leave-start"
+                    value={startDate}
+                    min="1970-01-01"
+                    max="2050-12-31"
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '3px' }}>
+                  <label htmlFor="endDate">End date:</label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    name="sick-leave-end"
+                    value={endDate}
+                    min="1970-01-01"
+                    max="2050-12-31"
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </>
+        }
+
+        {
+          selectedEntryType === EntryTypes.Hospital &&
+          <>
+            <Box sx={{ padding: '5px', border: '1px solid', borderRadius: '5px', marginTop: '5px' }}>
+              <Typography>Discharge</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '3px', marginBottom: '5px' }}>
+                <label htmlFor="dischargeDate">Discharge date:</label>
+                  <input
+                    type="date"
+                    id="dischargeDate"
+                    name="dischargeDate"
+                    value={dischargeDate}
+                    min="1970-01-01"
+                    max="2050-12-31"
+                    onChange={(e) => setDischargeDate(e.target.value)}
+                  />
+              </Box>
+              <TextField
+                label="Criteria"
+                placeholder="Criteria"
+                fullWidth
+                value={dischargeCriteria}
+                onChange={({ target }) => setDischargeCriteria(target.value)}
+              />
+            </Box>
+          </>
+        }
         
         <Grid>
           <Grid item>

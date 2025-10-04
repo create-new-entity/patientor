@@ -48,6 +48,16 @@ const PatientPage = () => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [error, setError] = useState<string>();
 
+    useEffect(() => {
+        const patientId = params.id;
+        if(isString(patientId)) {
+            (async () => {
+                const fetchedPatient = await patients.getOne(patientId);
+                setPatient(fetchedPatient);
+            })();
+        }
+    }, [params.id]);
+
     const openModal = (): void => setModalOpen(true);
 
     const closeModal = (): void => {
@@ -78,16 +88,6 @@ const PatientPage = () => {
             }
         }
     };
-    
-    useEffect(() => {
-        const patientId = params.id;
-        if(isString(patientId)) {
-            (async () => {
-                const fetchedPatient = await patients.getOne(patientId);
-                setPatient(fetchedPatient);
-            })();
-        }
-    }, [params.id]);
 
     if(!patient) {
         return null;

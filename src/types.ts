@@ -1,6 +1,6 @@
 
 export enum EntryTypes {
-  Hostpital = 'Hospital',
+  Hospital = 'Hospital',
   OccupationalHealthcare = 'OccupationalHealthcare',
   HealthCheck = 'HealthCheck'
 }
@@ -14,7 +14,7 @@ export interface BaseEntry {
   diagnosisCodes? : string[],
 }
 
-type Leave = {
+export type Leave = {
   startDate: string,
   endDate: string
 };
@@ -32,7 +32,7 @@ type Discharge = {
 };
 
 export interface HospitalEntry extends BaseEntry {
-  type: EntryTypes.Hostpital,
+  type: EntryTypes.Hospital,
   discharge: Discharge
 }
 
